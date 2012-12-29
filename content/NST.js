@@ -439,6 +439,10 @@ function preg_quote(str, delimiter) {
           }
         }
       }
+      if (lang == 'Text') {
+        self.level--;
+        self.nextLevelOffset = 0;
+      }
       self.open = self.level >= self.nodeLevels.slice(-1)[0];
       if (!self.open) self.nodeLevels.pop();
     };
@@ -499,6 +503,16 @@ function preg_quote(str, delimiter) {
         if (pp.literals) for (ln in pp.literals) // literals restore
           this.text = this.text.replace(/['"\/]\.\.\.['"\/]/, pp.literals[ln]);
         if (lang == 'CSS') this.type = TYPE_STYLE;
+        else if (lang == 'Text') {
+          if(line.match(/^===\s+/)) {
+            this.type = TYPE_PUBLIC;
+            this.text = '    '+this.text;
+          }
+          else if(line.match(/^====\s+/)) {
+            this.type = TYPE_PRIVATE;
+            this.text = '        '+this.text;
+          }
+        }
         else {
           /// implicit access definitions
           this.type = TYPE_FUNCTION;
@@ -1560,7 +1574,16 @@ function preg_quote(str, delimiter) {
             break;
           case 'SCSS':
           case 'Sass':
-          case 'LESS': 
+          case 'LESS':
+            break;
+          case 'Text':
+            p = new LineParserJS(self.lang,
+                                 ['= name', '== name'],
+                                 //['=== name'],
+                                 ['=== name', '==== name'],
+                                 '[^$]*',
+                                 null);
+            break;
           case 'CSS':
             p = new LineParserJS(self.lang,
                                  ['@name,'],
@@ -1640,7 +1663,7 @@ function preg_quote(str, delimiter) {
                 if (p.text) id = n.add(p.text, p.index + 1, p.type, p.info);
               }
             } else { // LineParserJS
-              if (p.removeLast) {
+              if (p.removeLast && self.lang != 'Text') {
                 n.nodes.pop();
                 n.end();
               }
