@@ -439,7 +439,7 @@ function preg_quote(str, delimiter) {
           }
         }
       }
-      if (lang == 'Text') {
+      if (lang == 'Text' || lang == 'Markdown') {
         self.level--;
         self.nextLevelOffset = 0;
       }
@@ -503,12 +503,12 @@ function preg_quote(str, delimiter) {
         if (pp.literals) for (ln in pp.literals) // literals restore
           this.text = this.text.replace(/['"\/]\.\.\.['"\/]/, pp.literals[ln]);
         if (lang == 'CSS') this.type = TYPE_STYLE;
-        else if (lang == 'Text') {
-          if(line.match(/^===\s+/)) {
+        else if (lang == 'Text' || lang == 'Markdown') {
+          if(line.match(/^===\s+/) || line.match(/^###\s+/)) {
             this.type = TYPE_PUBLIC;
             this.text = '    '+this.text;
           }
-          else if(line.match(/^====\s+/)) {
+          else if(line.match(/^====\s+/) || line.match(/^####\s+/)) {
             this.type = TYPE_PRIVATE;
             this.text = '        '+this.text;
           }
@@ -1577,10 +1577,11 @@ function preg_quote(str, delimiter) {
           case 'LESS':
             break;
           case 'Text':
+          case 'Markdown':
             p = new LineParserJS(self.lang,
-                                 ['= name', '== name'],
+                                 ['= name', '== name', '# name', '## name'],
                                  //['=== name'],
-                                 ['=== name', '==== name'],
+                                 ['=== name', '==== name', '### name', '#### name'],
                                  '[^$]*',
                                  null);
             break;
@@ -1663,7 +1664,7 @@ function preg_quote(str, delimiter) {
                 if (p.text) id = n.add(p.text, p.index + 1, p.type, p.info);
               }
             } else { // LineParserJS
-              if (p.removeLast && self.lang != 'Text') {
+              if (p.removeLast && (self.lang != 'Text' && self.lang != 'Markdown')) {
                 n.nodes.pop();
                 n.end();
               }
