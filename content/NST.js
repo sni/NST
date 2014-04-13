@@ -290,7 +290,7 @@ function preg_quote(str, delimiter) {
         // if we found an odd number of 1 of these, we have block literal line...
         if (this.blockLiteral1 || this.blockLiteral2) return false; // to ignore
       }
-      if (!line.match(swc)) { // if line not starts with comment
+      if (!line.match(swc) && !line.match(/Ext\.define/)) { // if line not starts with comment
         /// strip literals:
         line = line.replace(/\\'/g, String.fromCharCode(0))
                    .replace(/\\"/g, String.fromCharCode(1))
@@ -470,6 +470,8 @@ function preg_quote(str, delimiter) {
       ///
       /// Matching classes
       ///
+//ko.logging.getLogger("ko.extensions.nst").warn(line);
+//ko.logging.getLogger("ko.extensions.nst").warn(_classes[3]);
       if (_classes.length) for (i in _classes)
         if ((m = _classes[i].exec(line)) && m[1]) {
         this.text = m[1];
@@ -485,6 +487,8 @@ function preg_quote(str, delimiter) {
             }
             else
             if (line.match(/\bprototype\b/)) this.type = TYPE_PROTOTYPE_CLASS;
+            else
+            if (line.match(/\bExt\.define\b/)) this.type = TYPE_PROTOTYPE_CLASS;
           }
         }
         break;
@@ -493,7 +497,7 @@ function preg_quote(str, delimiter) {
       if (!this.text && // class is not matched
           _functions.length) // not inside started definition block
             for (i in _functions) // match must be done against all definitions
-              if ((m = _functions[i].exec(line)) && m[1]) { // if matched:
+              if (!line.match(/handler:\s*function/) && (m = _functions[i].exec(line)) && m[1]) { // if matched:
         this.text = m[1].replace('this.', '');
         if(lang == 'C++') this.text = m[1].replace(/^\*/, '');
         if (m[2]) { // default values will be removed:
@@ -1537,11 +1541,15 @@ function preg_quote(str, delimiter) {
             p = new LineParserJS(self.lang,
                                  ['name.prototype = {',
                                   '*name = {',
-                                  'name : {'],
+                                  'name : {',
+                                  'Ext.define*"name"',
+                                  "Ext.define*'name'"
+                                 ],
                                 ['id.prototype.name = function()',
                                  'function name() {',
                                  '*name = function() {',
-                                 '*name : function() {']);
+                                 '*name : function() {'
+                                ]);
             break;
           case 'ActionScript':
             p = new LineParserJS(self.lang,
