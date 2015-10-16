@@ -480,6 +480,15 @@ function preg_quote(str, delimiter) {
         if (lang == 'CSS') this.type = TYPE_AT_RULE;
         else {
           this.type = TYPE_CLASS;
+          if (lang == 'Text' || lang == 'Markdown') {
+              if(line.match(/^=\s+/) || line.match(/^#\s+/)) {
+                this.type = TYPE_CLASS;
+              }
+              else if(line.match(/^==\s+/) || line.match(/^##\s+/)) {
+                this.type = TYPE_FUNCTION;
+                this.text = '  '+this.text;
+              }
+          }
           if (lang == 'JavaScript') {
             if (line.match(_jQuery_match)) {
               this.text = this.text.replace(_jQuery_match, '');
@@ -1591,7 +1600,7 @@ function preg_quote(str, delimiter) {
                                  //['=== name'],
                                  ['=== name', '==== name', '### name', '#### name'],
                                  '[^$]*',
-                                 null);
+                                 null, null);
             break;
           case 'CSS':
             p = new LineParserJS(self.lang,
