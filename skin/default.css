@@ -19,7 +19,11 @@
 }
 #NST treechildren::-moz-tree-image(MethodProtected) {
   list-style-image: url('chrome://NST/skin/default/protected.png');
+  background-color: #ffeecc;
   margin-left: 8px;
+}
+#NST treechildren::-moz-tree-cell-text(MethodProtected) {
+  background-color: #ffeecc;
 }
 #NST treechildren::-moz-tree-image(MethodPublic) {
   list-style-image: url('chrome://NST/skin/default/public.png');
