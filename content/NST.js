@@ -459,6 +459,10 @@ function preg_quote(str, delimiter) {
      */
     this.parse = function(line, index) {
       reset();
+      if(line.match(/TODO:/)) {
+        this.text = line;
+        this.type = TYPE_PROTECTED;
+      }
       line = pp.parse(line, index); // code filtered, definition blocks matched
       if (!line) return;
       this.index = pp.defBlockReady ? (1 * pp.defBlockStart) : (1 * index);
